@@ -10,13 +10,16 @@ fi
 
 scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # shellcheck disable=SC1090
-source "$scriptdir/bashlog/log.sh"
+source "$scriptdir/../bashlog/log.sh"
 
-LOGFILE='test.log'
+# creates a logger called mylogger
+start_logging 'test.log' 'mylogger'
 
-start_logging "$LOGFILE" true
-log 'test'
+# logs a message
+mylogger_debug 'This is a DEBUG log message'
+mylogger_info 'This is a INFO log message'
 
-echo 'pipe' | log_pipe | tee -a "$LOGFILE"
+# logs the output of command
+date | mylogger_info
 
 exit 0
