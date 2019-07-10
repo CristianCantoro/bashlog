@@ -18,7 +18,7 @@ bashlog handles the possibility to log to multiple files and logging both to dif
 ### Loglevels
 
 The loglevels understood by bashlog are the following, with their correspond value:
---------------------
+
 | value | loglevel |
 |-------|----------|
 | 0     | notset   |
@@ -28,7 +28,6 @@ The loglevels understood by bashlog are the following, with their correspond val
 | 40    | error    |
 | 50    | critical |
 | 100   | donotlog |
---------------------
 
 ## Functions
 
@@ -44,12 +43,11 @@ Upon being sourced, bashlog provides just one function that can be used to creat
 ### Loggers
 
 If you create a logger with `start_logging <logfile> <logger>`, five functions are created:
-
-	* `<logger>_debug`
-	* `<logger>_info`
-	* `<logger>_warning`
-	* `<logger>_error`
-	* `<logger>_critical`
+* `<logger>_debug`
+* `<logger>_info`
+* `<logger>_warning`
+* `<logger>_error`
+* `<logger>_critical`
 
 where `<logger>` is the log name.
 
