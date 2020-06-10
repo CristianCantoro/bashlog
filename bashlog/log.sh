@@ -50,18 +50,18 @@ function start_logging {
 	# check logger_loglevel is admissibile 
 	if test "${loglevels_map["$logger_loglevel"]+x}"; then
 		logger_loglevel_val="${loglevels_map[$logger_loglevel]}"
-  else
-  	return 2
+	else
+		return 2
 	fi
 
 	# check verbosity is admissibile 
 	if test "${loglevels_map["$verbosity"]+x}"; then
 		verbosity_val="${loglevels_map[$verbosity]}"
-  else
-  	return 3
+	else
+		return 3
 	fi
 
-  shift $((OPTIND-1))
+	shift $((OPTIND-1))
 
 	local logfile logger
 	# positional args
@@ -81,13 +81,17 @@ function start_logging {
 		function ${logger}_${loglevel} {
 			if [ \$# -gt 0 ]; then
 
+				# sed escape delimiter
+				# https://stackoverflow.com/a/53412311/2377454
 				if [ ${loglevel_val} -ge  ${verbosity_val} ]; then
-					echo \$1 | awk '{print $logger_format}' | sed "s/__msg__/\$1/" \
+					echo "\$1" | awk '{print $logger_format}' | \
+					             sed "s/__msg__/\${1//\//\\\/}/g" \
 						>> /dev/stderr
 				fi
 
 				if [ ${loglevel_val} -ge ${logger_loglevel_val} ]; then
-					echo \$1 | awk '{print $logger_format}' | sed "s/__msg__/\$1/" \
+					echo "\$1" | awk '{print $logger_format}' | \
+					             sed "s/__msg__/\${1//\//\\\/}/g" \
 						>> "$logfile"
 				fi
 			else
@@ -95,7 +99,7 @@ function start_logging {
 				while read msg; do
 					if [ ${loglevel_val} -ge  ${verbosity_val} ]; then
 						echo "\$msg" | awk 'BEGIN	{ RS="(\r|\n)";
-									  										FS="";
+																				FS="";
 																			}
 															{
 																printf $(printf '%s' "${logger_format/__msg__/%s}"),\$0;
