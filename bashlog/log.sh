@@ -51,6 +51,7 @@ function start_logging {
 	if test "${loglevels_map["$logger_loglevel"]+x}"; then
 		logger_loglevel_val="${loglevels_map[$logger_loglevel]}"
 	else
+		(>&2 echo "[bashlog] logger loglevel '$logger_loglevel' not admissibile")
 		return 2
 	fi
 
@@ -58,6 +59,7 @@ function start_logging {
 	if test "${loglevels_map["$verbosity"]+x}"; then
 		verbosity_val="${loglevels_map[$verbosity]}"
 	else
+		(>&2 echo "[bashlog] logger verbosity '$verbosity' not admissibile")
 		return 3
 	fi
 
@@ -131,4 +133,6 @@ function start_logging {
 		LOGGER
 		)"
 	done
+
+	return 0
 }
