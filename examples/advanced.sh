@@ -31,4 +31,8 @@ echo -e 'pipe line5\npipe line6' | logger2a_debug
 logger2b_debug 'test2b'
 echo -e 'pipe line7\npipe line8' | logger2b_debug
 
+echo 'pipe line9a-' | logger1a_debug -n
+echo 'pipe line9b-' | logger1a_debug -n
+echo 'pipe line9c' | logger1a_debug
+
 exit 0

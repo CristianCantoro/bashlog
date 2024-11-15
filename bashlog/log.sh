@@ -17,6 +17,8 @@ fi
 # - 100: donotlog
 
 #################### functions
+
+
 function start_logging {
 
   local -a loglevels=("debug" "info" "warning" "error" "critical")
@@ -98,19 +100,31 @@ function start_logging {
     loglevel_val="${loglevels_map["$loglevel"]}"
     logger_format="${format/__loglevel__/$loglevel}"
     eval "$(cat <<-LOGGER
+
     function ${logger}_${loglevel} {
+      local nflag=''
+ 
+      while getopts 'n' log_opt; do
+         case \${log_opt} in
+           n)
+             nflag='-n'
+             shift
+             ;;
+         esac
+      done
+
       if [ \$# -gt 0 ]; then
 
         # sed escape delimiter
         # https://stackoverflow.com/a/53412311/2377454
         if [ "${loglevel_val}" -ge  "${verbosity_val}" ]; then
-          echo "\$1" | awk '{print $logger_format}' | \
+          echo \${nflag-} "\$1" | awk '{print $logger_format}' | \
                        sed "s/__msg__/\${1//\//\\\/}/g" \
             >> /dev/stderr
         fi
 
         if [ "${loglevel_val}" -ge ${logger_loglevel_val} ]; then
-          echo "\$1" | awk '{print $logger_format}' | \
+          echo \${nflag-} "\$1" | awk '{print $logger_format}' | \
                        sed "s/__msg__/\${1//\//\\\/}/g" \
             >> "$logfile"
         fi
@@ -118,29 +132,35 @@ function start_logging {
         local msg
         while read msg; do
           if [ "${loglevel_val}" -ge  "${verbosity_val}" ]; then
-            echo "\$msg" | awk 'BEGIN { RS="(\r|\n)";
+            echo \${nflag-} "\$msg" | awk -vNFLAG="\$nflag" \
+                              'BEGIN { RS="(\r|\n)";
                                         FS="";
-                                      }
+                                     }
                               {
                                 printf $(printf "%s" "${logger_format/__msg__/%s}"),\$0;
-                                if (RT=="\r") {
-                                    printf "\r";
-                                } else {
-                                    printf "\n";
+                                if (! NFLAG) {
+                                  if (RT=="\r") {
+                                      printf "\r";
+                                  } else {
+                                      printf "\n";
+                                  }
                                 }
                               }' >> /dev/stderr
           fi
 
           if [ "${loglevel_val}" -ge ${logger_loglevel_val} ]; then
-            echo "\$msg" | awk 'BEGIN { RS="(\r|\n)";
+            echo \${nflag:-} "\$msg" | awk -vNFLAG="\$nflag" \
+                              'BEGIN { RS="(\r|\n)";
                                         FS="";
-                                      }
+                                     }
                               {
                                 printf $(printf "%s" "${logger_format/__msg__/%s}"),\$0;
-                                if (RT=="\r") {
-                                    printf "\r";
-                                } else {
-                                    printf "\n";
+                                if (! NFLAG) {
+                                  if (RT=="\r") {
+                                      printf "\r";
+                                  } else {
+                                      printf "\n";
+                                  }
                                 }
                               }' >> "$logfile"
           fi
